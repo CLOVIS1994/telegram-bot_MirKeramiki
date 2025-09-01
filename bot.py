@@ -15,9 +15,6 @@ GROUP_ID = "1015977236"  # замените на свой id группы
 # Файл для хранения резерваций
 reservations_file = "reservations.json"
 
-# Временные данные пользователей для пошаговой резервации
-temp_users = {}
-
 def load_reservations():
     try:
         with open(reservations_file, "r", encoding="utf-8") as f:
@@ -36,8 +33,7 @@ def main_menu():
     markup.add(types.KeyboardButton("🌐 Перейти на сайт"))
     markup.add(types.KeyboardButton("🎉 Актуальные акции"))
     markup.add(types.KeyboardButton("📞 Контакты"))
-    markup.add(types.KeyboardButton("📝 Резервация объекта"))
-    markup.add(types.KeyboardButton("📋 Список резерваций"))
+    markup.add(types.KeyboardButton("📝 Резервация объекта"))  # новая кнопка
     return markup
 
 @bot.message_handler(commands=["start", "menu"])
@@ -100,25 +96,11 @@ def menu_handler(message):
         msg = bot.send_message(message.chat.id, "Введите адрес объекта:")
         bot.register_next_step_handler(msg, process_address)
 
-    elif message.text == "📋 Список резерваций":
-        reservations = load_reservations()
-        if not reservations:
-            bot.send_message(message.chat.id, "📭 Пока нет ни одной резервации.", reply_markup=main_menu())
-            return
-
-        text = "📋 Текущие резервации:\n\n"
-        for address, data in reservations.items():
-            text += f"🏠 Адрес: {address}\n"
-            text += f"📦 Объём: {data['volume']}\n"
-            text += f"📞 Контакт: {data['contact']}\n"
-            text += "----------------------\n"
-
-        bot.send_message(message.chat.id, text, reply_markup=main_menu())
-
     else:
         bot.send_message(message.chat.id, "Неизвестная команда. Пожалуйста, выберите действие из меню.", reply_markup=main_menu())
 
-# ====== Функции резервации с исправленным temp_users ======
+
+# ====== Функции резервации ======
 
 def process_address(message):
     address = message.text.strip()
@@ -126,38 +108,26 @@ def process_address(message):
     if address in reservations:
         bot.send_message(message.chat.id, "❌ Этот объект уже зарезервирован!")
         return
-    user_id = message.from_user.id
-    temp_users[user_id] = {"address": address}
-    msg = bot.send_message(message.chat.id, "Введите объём материалов:")
-    bot.register_next_step_handler(msg, process_volume)
+    user_data = {"address": address}
+    msg = bot.send_message(message.chat.id, "Введите вид материалов и их количество:")
+    bot.register_next_step_handler(msg, process_volume, user_data)
 
-def process_volume(message):
-    user_id = message.from_user.id
-    if user_id not in temp_users:
-        bot.send_message(message.chat.id, "Ошибка. Попробуйте заново.")
-        return
-    temp_users[user_id]["volume"] = message.text.strip()
+def process_volume(message, user_data):
+    user_data["volume"] = message.text.strip()
     msg = bot.send_message(message.chat.id, "Введите последние 4 цифры контактного номера заказчика:")
-    bot.register_next_step_handler(msg, process_contact)
+    bot.register_next_step_handler(msg, process_contact, user_data)
 
-def process_contact(message):
-    user_id = message.from_user.id
-    if user_id not in temp_users:
-        bot.send_message(message.chat.id, "Ошибка. Попробуйте заново.")
-        return
-
+def process_contact(message, user_data):
     contact = message.text.strip()
     if len(contact) != 4 or not contact.isdigit():
         msg = bot.send_message(message.chat.id, "Неверный формат. Введите **последние 4 цифры** номера:")
-        bot.register_next_step_handler(msg, process_contact)
+        bot.register_next_step_handler(msg, process_contact, user_data)
         return
-
-    user_data = temp_users.pop(user_id)
     user_data["contact"] = contact
 
     reservations = load_reservations()
     reservations[user_data["address"]] = {
-        "user_id": user_id,
+        "user_id": message.from_user.id,
         "volume": user_data["volume"],
         "contact": user_data["contact"]
     }
@@ -166,6 +136,7 @@ def process_contact(message):
     text = f"📌 Новая резервация:\nАдрес: {user_data['address']}\nОбъём: {user_data['volume']}\nКонтакт: {user_data['contact']}"
     bot.send_message(GROUP_ID, text)
     bot.send_message(message.chat.id, "✅ Ваш объект успешно зарезервирован!", reply_markup=main_menu())
+
 
 # ====== Запуск бота с защитой от крашей ======
 
@@ -180,4 +151,3 @@ if __name__ == "__main__":
             print(f"⚠️ Ошибка во время polling: {e}")
             print("⏱ Ждём 5 секунд и перезапускаем polling...")
             time.sleep(5)
-
