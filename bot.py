@@ -163,7 +163,7 @@ def process_contact(message):
     }
     save_reservations(reservations)
 
-    text = f"📌 Новая резервация:\n🏠 Адрес: {data['address']}\n📦 Материал: {data['volume']}\n📞 Контакт (4 цифры): {data['contact']}"
+    text = f"📌 Новая резервация:\n🏠 Адрес объекта: {data['address']}\n📦 Материал и количество: {data['volume']}\n📞 Контакт заказчика (последние 4 цифры): {data['contact']}"
     bot.send_message(GROUP_ID, text)
     bot.send_message(message.chat.id, "✅ Резервация успешно сохранена!", reply_markup=main_menu())
 
@@ -179,4 +179,5 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
+
 
