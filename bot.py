@@ -4,10 +4,27 @@ import telebot
 from telebot import types
 import time
 import os
+import json
 
-# Токен берём из переменных окружения Railway
 TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAH-GgXWnMJlUUs9mMPr9PRiy-gRr6h3AYY"
 bot = telebot.TeleBot(TOKEN)
+
+# ID вашей группы для отправки резерваций
+GROUP_ID = "-1001234567890"  # замените на свой id группы
+
+# Файл для хранения резерваций
+reservations_file = "reservations.json"
+
+def load_reservations():
+    try:
+        with open(reservations_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def save_reservations(data):
+    with open(reservations_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -16,6 +33,7 @@ def main_menu():
     markup.add(types.KeyboardButton("🌐 Перейти на сайт"))
     markup.add(types.KeyboardButton("🎉 Актуальные акции"))
     markup.add(types.KeyboardButton("📞 Контакты"))
+    markup.add(types.KeyboardButton("📝 Резервация объекта"))  # новая кнопка
     return markup
 
 @bot.message_handler(commands=["start", "menu"])
@@ -30,8 +48,6 @@ def start(message):
 def menu_handler(message):
     if message.text == "📄 Скачать прайс-листы":
         bot.send_message(message.chat.id, "📩 Отправка прайс-листов… Это может занять несколько секунд.", reply_markup=main_menu())
-        time.sleep(2)
-
         files = ["Прайс_общестрой.xlsx", "Прайс_кровельный.xls"]
         for filename in files:
             try:
@@ -39,7 +55,6 @@ def menu_handler(message):
                     bot.send_document(message.chat.id, f)
             except FileNotFoundError:
                 bot.send_message(message.chat.id, f"❌ Файл {filename} не найден. Добавьте его рядом с bot.py", reply_markup=main_menu())
-
         bot.send_message(message.chat.id, "Прайс-листы отправлены ✅", reply_markup=main_menu())
 
     elif message.text == "📷 Галерея Toza Marković":
@@ -77,8 +92,53 @@ def menu_handler(message):
             reply_markup=main_menu()
         )
 
+    elif message.text == "📝 Резервация объекта":
+        msg = bot.send_message(message.chat.id, "Введите адрес объекта:")
+        bot.register_next_step_handler(msg, process_address)
+
     else:
-        bot.send_message(message.chat.id, "Неизвестная команда. Выберите из меню ниже 👇", reply_markup=main_menu())
+        bot.send_message(message.chat.id, "Неизвестная команда. Пожалуйста, выберите действие из меню.", reply_markup=main_menu())
+
+
+# ====== Функции резервации ======
+
+def process_address(message):
+    address = message.text.strip()
+    reservations = load_reservations()
+    if address in reservations:
+        bot.send_message(message.chat.id, "❌ Этот объект уже зарезервирован!")
+        return
+    user_data = {"address": address}
+    msg = bot.send_message(message.chat.id, "Введите объём материалов:")
+    bot.register_next_step_handler(msg, process_volume, user_data)
+
+def process_volume(message, user_data):
+    user_data["volume"] = message.text.strip()
+    msg = bot.send_message(message.chat.id, "Введите последние 4 цифры контактного номера заказчика:")
+    bot.register_next_step_handler(msg, process_contact, user_data)
+
+def process_contact(message, user_data):
+    contact = message.text.strip()
+    if len(contact) != 4 or not contact.isdigit():
+        msg = bot.send_message(message.chat.id, "Неверный формат. Введите **последние 4 цифры** номера:")
+        bot.register_next_step_handler(msg, process_contact, user_data)
+        return
+    user_data["contact"] = contact
+
+    reservations = load_reservations()
+    reservations[user_data["address"]] = {
+        "user_id": message.from_user.id,
+        "volume": user_data["volume"],
+        "contact": user_data["contact"]
+    }
+    save_reservations(reservations)
+
+    text = f"📌 Новая резервация:\nАдрес: {user_data['address']}\nОбъём: {user_data['volume']}\nКонтакт: {user_data['contact']}"
+    bot.send_message(GROUP_ID, text)
+    bot.send_message(message.chat.id, "✅ Ваш объект успешно зарезервирован!", reply_markup=main_menu())
+
+
+# ====== Запуск бота с защитой от крашей ======
 
 print("Бот запущен...")
 
