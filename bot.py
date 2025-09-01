@@ -10,7 +10,7 @@ TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAH-GgXWnMJlUUs9mMPr9PRiy-gRr
 bot = telebot.TeleBot(TOKEN)
 
 # ID вашей группы для отправки резерваций
-GROUP_ID = "@Clovis_94"  # замените на свой id группы
+GROUP_ID = "1015977236"  # замените на свой id группы
 
 # Файл для хранения резерваций
 reservations_file = "reservations.json"
@@ -180,3 +180,4 @@ if __name__ == "__main__":
             print(f"⚠️ Ошибка во время polling: {e}")
             print("⏱ Ждём 5 секунд и перезапускаем polling...")
             time.sleep(5)
+
