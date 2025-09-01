@@ -10,7 +10,7 @@ TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAH-GgXWnMJlUUs9mMPr9PRiy-gRr
 bot = telebot.TeleBot(TOKEN)
 
 # ID вашей группы для отправки резерваций
-GROUP_ID = "-1001234567890"  # замените на свой id группы
+GROUP_ID = "@Clovis_94"  # замените на свой id группы
 
 # Файл для хранения резерваций
 reservations_file = "reservations.json"
