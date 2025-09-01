@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 import telebot
@@ -6,6 +5,7 @@ from telebot import types
 import time
 import os
 
+# Токен берём из переменных окружения Railway
 TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAH-GgXWnMJlUUs9mMPr9PRiy-gRr6h3AYY"
 bot = telebot.TeleBot(TOKEN)
 
@@ -32,14 +32,13 @@ def menu_handler(message):
         bot.send_message(message.chat.id, "📩 Отправка прайс-листов… Это может занять несколько секунд.", reply_markup=main_menu())
         time.sleep(2)
 
-        files = ["Прайс_общестрой.xlsx", "Прайс_кровельный.xls"]  # список файлов для отправки
+        files = ["Прайс_общестрой.xlsx", "Прайс_кровельный.xls"]
         for filename in files:
             try:
                 with open(filename, "rb") as f:
                     bot.send_document(message.chat.id, f)
-                    time.sleep(1)
             except FileNotFoundError:
-                bot.send_message(message.chat.id, f"❌ Файл {filename} не найден. Пожалуйста, добавьте его рядом с bot.py", reply_markup=main_menu())
+                bot.send_message(message.chat.id, f"❌ Файл {filename} не найден. Добавьте его рядом с bot.py", reply_markup=main_menu())
 
         bot.send_message(message.chat.id, "Прайс-листы отправлены ✅", reply_markup=main_menu())
 
@@ -54,7 +53,7 @@ def menu_handler(message):
             with open("promo.jpg", "rb") as photo:
                 bot.send_photo(message.chat.id, photo, reply_markup=main_menu())
         except FileNotFoundError:
-            bot.send_message(message.chat.id, "❌ Картинка с акцией не найдена. Поместите файл promo.jpg рядом с bot.py", reply_markup=main_menu())
+            bot.send_message(message.chat.id, "❌ Картинка promo.jpg не найдена", reply_markup=main_menu())
 
     elif message.text == "📞 Контакты":
         contacts_text = (
@@ -62,16 +61,14 @@ def menu_handler(message):
             "🏢 *Офис*\n"
             "📞 +380503909383 (Олег Баранов - общестрой)\n"
             "📞 +380979560464 (Евгений Рогачко - кровля)\n"
-            "📍 [г. Одесса, ул. Левитана 62](https://www.google.com/maps/place/Мир+Керамики+-+строительные+материалы+в+Одессе+и+области/@46.4075791,30.7221186,17z/data=!3m1!4b1!4m6!3m5!1s0x40c63337397bfa2b:0xcec13337eb49ba2d!8m2!3d46.4075791!4d30.7221186!16s%2Fg%2F11gm8szrpg?hl=en-RO&entry=ttu&g_ep=EgoyMDI1MDgwNi4wIKXMDSoASAFQAw%3D%3D)\n\n"
+            "📍 [г. Одесса, ул. Левитана 62](https://maps.app.goo.gl/R4ULrDniGVGfqpjm6)\n\n"
             "🏢 *Склад №1*\n"
             "📞 +380950411490 (кладовщик Андрей)\n"
-            "📍 [г. Одесса, Киевское шоссе 2](https://www.google.com/maps/place/Строительные+товары+Мир+Керамики+2/@46.4905258,30.6747304,17z/data=!3m1!4b1!4m6!3m5!1s0x40c62f3a4807c915:0xc608fcc842012efd!8m2!3d46.4905258!4d30.6747304!16s%2Fg%2F11rwqq7jsl?hl=en-RO&entry=ttu&g_ep=EgoyMDI1MDgwNi4wIKXMDSoASAFQAw%3D%3D)\n\n"
+            "📍 [г. Одесса, Киевское шоссе 2](https://maps.app.goo.gl/RkA5sAu6pZ7nbjHe6)\n\n"
             "🏢 *Склад №2*\n"
             "📞 +380505190818 (кладовщик Вадим)\n"
-            "📍 [с. Нерубайское, Пастера 1](https://www.google.com/maps/place/Строительные+материалы+Мир+Керамики/@46.5356156,30.6386978,17z/data=!4m6!3m5!1s0x40c62fdca68102f1:0x760153ce75529fab!8m2!3d46.5356155!4d30.6426207!16s%2Fg%2F11n_z7l9wz?hl=en-RO&entry=ttu&g_ep=EgoyMDI1MDgwNi4wIKXMDSoASAFQAw%3D%3D)"
-            )
-
-        # <-- ОТСЮДА БЫЛО НЕДОСТАЮЩЕЕ ОТПРАВЛЕНИЕ
+            "📍 [с. Нерубайское, Пастера 1](https://maps.app.goo.gl/SHzNKh9Kyid4SzdR8)"
+        )
         bot.send_message(
             message.chat.id,
             contacts_text,
@@ -81,7 +78,16 @@ def menu_handler(message):
         )
 
     else:
-        bot.send_message(message.chat.id, "Неизвестная команда. Пожалуйста, выберите действие из меню.", reply_markup=main_menu())
+        bot.send_message(message.chat.id, "Неизвестная команда. Выберите из меню ниже 👇", reply_markup=main_menu())
 
 print("Бот запущен...")
-bot.polling(none_stop=True)
+
+if __name__ == "__main__":
+    while True:
+        try:
+            print("🚀 Polling стартует...")
+            bot.infinity_polling(timeout=60, long_polling_timeout=90)
+        except Exception as e:
+            print(f"⚠️ Ошибка во время polling: {e}")
+            print("⏱ Ждём 5 секунд и перезапускаем polling...")
+            time.sleep(5)
