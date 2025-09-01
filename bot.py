@@ -46,6 +46,7 @@ def cancel_button():
 
 @bot.message_handler(commands=["start", "menu"])
 def start(message):
+    pending_reservations.pop(message.chat.id, None)  # если юзер вернулся в меню, отменяем резервацию
     bot.send_message(
         message.chat.id,
         "Привет! 👋\nВыбери действие в меню ниже:",
@@ -55,6 +56,7 @@ def start(message):
 @bot.message_handler(func=lambda m: True)
 def menu_handler(message):
     if message.text == "📄 Скачать прайс-листы":
+        pending_reservations.pop(message.chat.id, None)
         bot.send_message(message.chat.id, "📩 Отправка прайс-листов…", reply_markup=main_menu())
         files = ["Прайс_общестрой.xlsx", "Прайс_кровельный.xls"]
         for filename in files:
@@ -66,12 +68,15 @@ def menu_handler(message):
         bot.send_message(message.chat.id, "✅ Прайс-листы отправлены", reply_markup=main_menu())
 
     elif message.text == "📷 Галерея Toza Marković":
+        pending_reservations.pop(message.chat.id, None)
         bot.send_message(message.chat.id, "📷 Галерея: https://toza.rs/prodavnica/crep/", reply_markup=main_menu())
 
     elif message.text == "🌐 Перейти на сайт":
+        pending_reservations.pop(message.chat.id, None)
         bot.send_message(message.chat.id, "🌐 Сайт: https://mirkeramiki.org", reply_markup=main_menu())
 
     elif message.text == "🎉 Актуальные акции":
+        pending_reservations.pop(message.chat.id, None)
         try:
             with open("promo.jpg", "rb") as photo:
                 bot.send_photo(message.chat.id, photo, reply_markup=main_menu())
@@ -79,6 +84,7 @@ def menu_handler(message):
             bot.send_message(message.chat.id, "❌ promo.jpg не найден", reply_markup=main_menu())
 
     elif message.text == "📞 Контакты":
+        pending_reservations.pop(message.chat.id, None)
         contacts_text = (
             "📍 *Наши контакты:*\n\n"
             "🏢 *Офис*\n"
@@ -158,12 +164,21 @@ def process_contact(message):
     reservations = load_reservations()
     reservations[data["address"]] = {
         "user_id": message.from_user.id,
+        "username": message.from_user.username or message.from_user.first_name,
         "volume": data["volume"],
         "contact": data["contact"]
     }
     save_reservations(reservations)
 
-    text = f"📌 Новая резервация:\n🏠 Адрес объекта: {data['address']}\n📦 Материал и количество: {data['volume']}\n📞 Контакт заказчика (последние 4 цифры): {data['contact']}"
+    username_display = f"@{message.from_user.username}" if message.from_user.username else message.from_user.first_name
+
+    text = (
+        f"📌 Новая резервация:\n\n"
+        f"👤 Ответственный: {username_display}\n"
+        f"🏠 Адрес объекта: {data['address']}\n"
+        f"📦 Материал и количество: {data['volume']}\n"
+        f"📞 Контакт заказчика (последние 4 цифры): {data['contact']}"
+    )
     bot.send_message(GROUP_ID, text)
     bot.send_message(message.chat.id, "✅ Резервация успешно сохранена!", reply_markup=main_menu())
 
@@ -179,5 +194,3 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
-
-
