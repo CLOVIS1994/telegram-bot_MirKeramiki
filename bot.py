@@ -96,7 +96,7 @@ def menu_handler(message):
 
     elif message.text == "📝 Резервация объекта":
         pending_reservations[message.chat.id] = {}
-        msg = bot.send_message(message.chat.id, "Введите адрес объекта (или нажмите ❌ Отмена):", reply_markup=cancel_button())
+        msg = bot.send_message(message.chat.id, "Введите адрес объекта (или нажмите Отмена):", reply_markup=cancel_button())
         bot.register_next_step_handler(msg, process_address)
 
     elif message.text == "❌ Отмена":
@@ -123,7 +123,7 @@ def process_address(message):
         return
 
     pending_reservations[message.chat.id]["address"] = address
-    msg = bot.send_message(message.chat.id, "Введите вид материалов и их количество (или ❌ Отмена):", reply_markup=cancel_button())
+    msg = bot.send_message(message.chat.id, "Введите вид материалов и их количество (или Отмена):", reply_markup=cancel_button())
     bot.register_next_step_handler(msg, process_volume)
 
 def process_volume(message):
@@ -133,7 +133,7 @@ def process_volume(message):
         return
 
     pending_reservations[message.chat.id]["volume"] = message.text.strip()
-    msg = bot.send_message(message.chat.id, "Введите последние 4 цифры номера заказчика (или ❌ Отмена):", reply_markup=cancel_button())
+    msg = bot.send_message(message.chat.id, "Введите последние 4 цифры номера заказчика (или Отмена):", reply_markup=cancel_button())
     bot.register_next_step_handler(msg, process_contact)
 
 def process_contact(message):
@@ -179,3 +179,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
+
