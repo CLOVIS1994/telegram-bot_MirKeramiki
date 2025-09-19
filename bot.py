@@ -90,13 +90,13 @@ def menu_handler(message):
             "🏢 *Офис*\n"
             "📞 +380503909383 (Олег)\n"
             "📞 +380979560464 (Евгений)\n"
-            "📍 [г. Одесса, ул. Левитана 62](https://maps.app.goo.gl/R4ULrDniGVGfqpjm6)\n\n"
+            "📍 [г. Одесса, ул. Левитана 62](https://maps.app.goo.gl/9ou4bG5fH8zHbig99)\n\n"
             "🏢 *Склад №1*\n"
             "📞 +380950411490 (Андрей)\n"
-            "📍 [г. Одесса, Киевское шоссе 2](https://maps.app.goo.gl/RkA5sAu6pZ7nbjHe6)\n\n"
+            "📍 [г. Одесса, Киевское шоссе 2](https://maps.app.goo.gl/73Y6FzuPiuTsEMP98)\n\n"
             "🏢 *Склад №2*\n"
             "📞 +380505190818 (Вадим)\n"
-            "📍 [с. Нерубайское, Пастера 1](https://maps.app.goo.gl/SHzNKh9Kyid4SzdR8)"
+            "📍 [с. Нерубайское, Пастера 1](https://maps.app.goo.gl/zwmnNe8YdUPbrmWw8)"
         )
         bot.send_message(message.chat.id, contacts_text, parse_mode="Markdown", disable_web_page_preview=True, reply_markup=main_menu())
 
@@ -194,4 +194,5 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
+
 
