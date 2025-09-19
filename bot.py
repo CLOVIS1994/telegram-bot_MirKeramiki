@@ -6,7 +6,7 @@ import time
 import os
 import json
 
-TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAH-GgXWnMJlUUs9mMPr9PRiy-gRr6h3AYY"
+TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAGFcAqqTWbSKMdyx2PFAwiCTmi6HFqrH-M"
 bot = telebot.TeleBot(TOKEN)
 
 # ID вашей группы для отправки резерваций
@@ -194,3 +194,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
+
