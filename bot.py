@@ -34,7 +34,7 @@ def main_menu():
     markup.add(types.KeyboardButton("📄 Скачать прайс-листы"))
     markup.add(types.KeyboardButton("📷 Галерея Toza Marković"))
     markup.add(types.KeyboardButton("🌐 Перейти на сайт"))
-    markup.add(types.KeyboardButton("🎉 Актуальные акции"))
+    #markup.add(types.KeyboardButton("🎉 Актуальные акции"))
     markup.add(types.KeyboardButton("📞 Контакты"))
     markup.add(types.KeyboardButton("📝 Резервация объекта"))
     return markup
@@ -194,6 +194,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
+
 
 
 
