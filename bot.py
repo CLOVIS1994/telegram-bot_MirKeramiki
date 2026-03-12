@@ -58,7 +58,7 @@ def menu_handler(message):
     if message.text == "📄 Скачать прайс-листы":
         pending_reservations.pop(message.chat.id, None)
         bot.send_message(message.chat.id, "📩 Отправка прайс-листов…", reply_markup=main_menu())
-        files = ["Прайс_общестрой.xlsx", "Прайс_кровельный.xls"]
+        files = ["ПРАЙС_СКЛАДЫ_09_03_2026_МИР_КЕРАМИКИ.xlsx", "ПРАЙС_КРОВЛЯ_12.03.26_МИР_КЕРАМИКИ.xlsx"]
         for filename in files:
             try:
                 with open(filename, "rb") as f:
@@ -194,5 +194,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Ошибка polling: {e}")
             time.sleep(5)
+
 
 
