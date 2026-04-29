@@ -6,7 +6,7 @@ import time
 import os
 import json
 
-TOKEN = os.environ.get("BOT_TOKEN") or "7628596509:AAGFcAqqTWbSKMdyx2PFAwiCTmi6HFqrH-M"
+TOKEN = os.environ.get("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
 # ID вашей группы для отправки резерваций
