@@ -58,7 +58,7 @@ def menu_handler(message):
     if message.text == "📄 Скачать прайс-листы":
         pending_reservations.pop(message.chat.id, None)
         bot.send_message(message.chat.id, "📩 Отправка прайс-листов…", reply_markup=main_menu())
-        files = ["ПРАЙС_КРОВЛЯ_27.04.26_МИР_КЕРАМИКИ.xlsx"]#, "ПРАЙС_ОБЩЕСТРОЙ_14_04_2026_МИР_КЕРАМИКИ.xlsx"]
+        files = ["ПРАЙС_КРОВЛЯ_27.04.26_МИР_КЕРАМИКИ.xlsx"]
         for filename in files:
             try:
                 with open(filename, "rb") as f:
